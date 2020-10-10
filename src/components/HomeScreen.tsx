@@ -1,9 +1,11 @@
 import ViewPager from '@react-native-community/viewpager';
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, Dimensions, TouchableNativeFeedback } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/AntDesign';
+import { Navigation } from 'react-native-navigation';
+import Icon from 'react-native-vector-icons/Octicons';
+import { CONTROL, POSITION } from '../containers';
 import InfoItem from './widgets/InfoItem';
 
 
@@ -26,10 +28,11 @@ export default class HomeScreen extends Component<IProps, IStates>{
                         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Theo dõi thông số</Text>
                     </View>
                     <View style={styles.info}>
-                        <Icon
+                        {/* <Icon
                             name='cloud'
                             size={70}
-                        />
+                        /> */}
+                        <Image source={require('../../assets/sun.png')} style={{ height: 80, width: 80 }} resizeMode='contain' />
                         <Text style={{ fontSize: 50, fontWeight: 'bold' }}>31.9</Text>
                         <Text style={{ color: 'rgba(0,0,0,0.3)' }}>Đống đa, Hà Nội</Text>
                     </View>
@@ -128,50 +131,54 @@ export default class HomeScreen extends Component<IProps, IStates>{
                             </View>
                         </View>
                     </ScrollView>
-                    <ViewPager style={{ height: 200, width: 200 }} initialPage={0}>
-                        <View key="1">
-                            <Text>First page</Text>
-                        </View>
-                        <View key="2">
-                            <Text>Second page</Text>
-                        </View>
-                    </ViewPager>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold' }}>Nhiệt độ</Text>
                     <View style={{ marginBottom: 80 }}>
                         <LineChart
                             data={{
-                                labels: ["January", "February", "March", "April", "May", "June"],
+                                labels: ["03:10", "03:12", "03:14", "03:16", "03:18", "03:20"],
                                 datasets: [
                                     {
                                         data: [
-                                            Math.random() * 100,
-                                            Math.random() * 100,
-                                            Math.random() * 100,
-                                            Math.random() * 100,
-                                            Math.random() * 100,
-                                            Math.random() * 100
-                                        ]
+                                            32,
+                                            32,
+                                            32.3,
+                                            32.1,
+                                            32,
+                                            32.5,
+                                        ],
                                     }
                                 ]
                             }}
                             width={Dimensions.get("window").width} // from react-native
                             height={220}
-                            yAxisLabel="$"
-                            yAxisSuffix="k"
-                            yAxisInterval={1} // optional, defaults to 1
+                            // yAxisLabel="$"
+                            // yAxisSuffix="k"
+                            renderDotContent={({ x, y, index }) => {
+                                return (
+                                    <Text style={{ position: 'absolute', top: y - 20, left: x - 8, fontSize: 10 }}>32.1</Text>
+
+                                );
+                            }}
+                            withInnerLines={false}
+                            withOuterLines={false}
+                            horizontalLabelRotation={-30}
+                            withHorizontalLabels={false}
                             chartConfig={{
                                 backgroundColor: "white",
                                 backgroundGradientFrom: "white",
                                 backgroundGradientTo: "white",
                                 decimalPlaces: 2, // optional, defaults to 2dp
-                                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                color: (opacity = 0.3) => `rgba(0, 0, 0, ${opacity})`,
+                                labelColor: (opacity = 0.3) => `rgba(0, 0, 0, ${opacity})`,
+                                barPercentage: 0.1,
                                 style: {
-                                    borderRadius: 16
+                                    borderRadius: 16,
                                 },
                                 propsForDots: {
                                     r: "6",
                                     strokeWidth: "2",
-                                    stroke: "#ffa726"
+                                    stroke: "#ffa726",
+
                                 }
                             }}
                             bezier
@@ -187,15 +194,59 @@ export default class HomeScreen extends Component<IProps, IStates>{
                                 name='home'
                                 size={26}
                                 color='rgba(0,0,0,0.5)'
-                                style={{ padding: 4 }} />
+                                style={{ padding: 6 }} />
                             <Text style={{ fontSize: 15, color: 'rgba(0,0,0,0.5)', fontWeight: 'bold' }}>Home</Text>
                         </View>
                         <View style={{ height: '100%', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 15, padding: 5 }}>
-                            <Icon
-                                name='setting'
-                                size={26}
-                                color='rgba(0,0,0,0.5)'
-                                style={{ padding: 4 }} />
+                            <TouchableNativeFeedback onPress={() => {
+                                Navigation.showModal({
+                                    stack: {
+                                        children: [
+                                            {
+                                                component: {
+                                                    name: POSITION,
+                                                    options: {
+                                                        screenBackgroundColor: 'transparent',
+                                                        modalPresentationStyle: 'overCurrentContext',
+                                                        topBar: {
+                                                            visible: false,
+                                                            animate: true,
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                    },
+                                })
+                            }}>
+                                <Icon
+                                    name='location'
+                                    size={26}
+                                    color='rgba(0,0,0,0.5)'
+                                    style={{ paddingHorizontal: 10 }} />
+                            </TouchableNativeFeedback>
+                            <TouchableNativeFeedback onPress={() => {
+                                Navigation.push(this.props.componentId, {
+                                    component: {
+                                        name: CONTROL,
+                                        options: {
+                                            topBar: {
+                                                visible: false,
+                                            },
+                                            statusBar: {
+                                                backgroundColor: '#397fff',
+                                                style: 'dark',
+                                            }
+                                        }
+                                    }
+                                })
+                            }}>
+                                <Icon
+                                    name='dashboard'
+                                    size={26}
+                                    color='rgba(0,0,0,0.5)'
+                                    style={{ paddingHorizontal: 10 }} />
+                            </TouchableNativeFeedback>
                         </View>
                     </View>
                 </View>
