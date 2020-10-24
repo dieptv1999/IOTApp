@@ -4,6 +4,8 @@ import { Navigation } from 'react-native-navigation';
 import { HOME } from '../containers';
 import LoginCart from './widgets/LoginCart';
 import RadioButton from './widgets/RadioButton';
+import AsyncStorage from '@react-native-community/async-storage';
+
 
 interface IProps {
     onLogin: (username: string, password: string, callback: any) => void,
@@ -22,6 +24,7 @@ class Login extends Component<IProps, IState> {
     constructor(props: any) {
         super(props);
 
+        this._storeData = this._storeData.bind(this)
         this.state = {
             selected: true,
             loading: false,
@@ -29,14 +32,42 @@ class Login extends Component<IProps, IState> {
             password: "",
         };
     }
+
+
     changeSelectRememberMe = () => {
         this.setState({
             selected: !this.state.selected,
         });
     };
+
+    async _storeData(email: string, pwd: string, selected: string) {
+        console.log(selected + "selected")
+        try {
+            await AsyncStorage.setItem("selected", selected);
+            await AsyncStorage.setItem("email", email);
+            await AsyncStorage.setItem("pwd", pwd);
+        } catch (error) {
+            console.log("error auto remember")
+        }
+    };
+
+    async _removeData(selected: string) {
+        console.log(selected + "remove")
+        try {
+            await AsyncStorage.setItem("selected", selected);
+            await AsyncStorage.removeItem("email");
+            await AsyncStorage.removeItem("pwd");
+        } catch (e) {
+            console.log("don't remove remember")
+        }
+    }
+
     render() {
         if (!this.state.loading) {
             if (this.props.loginData != null) {
+                console.log(this.state.selected, "render")
+                if (this.state.selected) this._storeData(this.state.email, this.state.password, JSON.stringify(this.state.selected));
+                else this._removeData(JSON.stringify(this.state.selected))
                 Navigation.push(this.props.componentId, {
                     component: {
                         name: HOME,
@@ -66,7 +97,12 @@ class Login extends Component<IProps, IState> {
                                 email: email,
                                 password: password,
                             })
-                        }} />
+                        }}
+                            setSelected={(val: boolean) => {
+                                this.setState({
+                                    selected: val
+                                })
+                            }} />
                         <View style={styles.buttonLogin}>
                             <RadioButton selected={this.state.selected} size={20} content={" Remember me"} callback={this.changeSelectRememberMe.bind(this)} />
                             <View style={styles.buttonLoginDetail}>

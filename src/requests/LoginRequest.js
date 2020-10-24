@@ -11,7 +11,6 @@ const defaultConfig = {
 export default class LoginService extends BaseRequest {
 
     login(params, config = defaultConfig.login) {
-        console.log(params)
         return this.post(`api/login`, params, config);
     }
 }

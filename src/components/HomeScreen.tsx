@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, Dimensions, To
 import { LineChart } from 'react-native-chart-kit';
 import { Navigation } from 'react-native-navigation';
 import Icon from 'react-native-vector-icons/Octicons';
-import { CONTROL, POSITION } from '../containers';
+import { CONTROL, LOGIN, POSITION } from '../containers';
 import Animated, { Easing, Extrapolate } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-community/async-storage';
+import RNRestart from 'react-native-restart';
 
 const {
     Clock,
@@ -21,88 +23,6 @@ const {
     useCode,
 } = Animated;
 
-
-// interface IProps {
-//     componentId: any,
-// }
-
-// interface IStates {
-//     markers: any,
-//     region: any
-// }
-// export default class HomeScreen extends Component<IProps, IStates>{
-//     animation: any
-//     index: number
-//     regionTimeout: any
-//     map: any
-//     constructor(props: any) {
-//         super(props)
-//         this.animation = new Animated.Value(0);
-//         this.index = 0;
-//         this.regionTimeout
-//         this.runTiming = this.runTiming.bind(this)
-//         this.state = {
-//             markers: [{ image: "abc", isAlerte: true }, { image: "abc", isAlerte: false }, { image: "abc" }, { image: "abc" }, { image: "abc" }],
-//             region: {}
-//         }
-//     }
-
-//     componentDidMount() {
-//         this.animation.addListener(({ value }) => {
-//             console.log(value)
-//             let index = Math.floor(value / 94 + 0.3); // animate 30% away from landing on the next item
-//             if (index >= this.state.markers.length) {
-//                 index = this.state.markers.length - 1;
-//             }
-//             if (index <= 0) {
-//                 index = 0;
-//             }
-
-//             clearTimeout(this.regionTimeout);
-//             this.regionTimeout = setTimeout(() => {
-//                 if (this.index !== index) {
-//                     this.index = index;
-//                     const { coordinates } = this.state.markers[index];
-//                     console.log(index)
-//                     // this.map.animateToRegion(
-//                     //     {
-//                     //         ...coordinates,
-//                     //         latitudeDelta: this.state.region.latitudeDelta,
-//                     //         longitudeDelta: this.state.region.longitudeDelta,
-//                     //     },
-//                     //     350
-//                     // );
-//                 }
-//             }, 10);
-//         });
-//     }
-
-
-
-
-//     render() {
-//         const { onPress, children } = this.props;
-//         const [pressed, setPressed] = useState(false);
-//         const { clock, scale } = useMemo(() => ({
-//             clock: new Clock(),
-//             scale: new Value(1),
-//         }), [])
-
-//         useCode(
-//             () => block([
-//                 pressed ? set(scale, this.runTiming(clock, 0, 1)) : set(scale, this.runTiming(clock, 1, 0))
-//             ]), [pressed]
-//         );
-//         const scaling = interpolate(scale, {
-//             inputRange: [1, 1],
-//             outputRange: [1.1, 1.1],
-//             extrapolate: Extrapolate.CLAMP
-//         });
-//         return (
-
-//         );
-//     }
-// }
 function runTiming(clock, from, to) {
     const state = {
         finished: new Value(0),
@@ -132,6 +52,16 @@ function runTiming(clock, from, to) {
     ]);
 }
 
+async function _removeData() {
+    try {
+        await AsyncStorage.setItem("selected", 'true');
+        await AsyncStorage.removeItem("email");
+        await AsyncStorage.removeItem("pwd");
+    } catch (e) {
+        console.log("don't remove remember")
+    }
+};
+
 const HomeScreen = (props) => {
     const { onPress, children } = props;
     const [pressed, setPressed] = useState(false);
@@ -151,6 +81,8 @@ const HomeScreen = (props) => {
         outputRange: [1, 0.90],
         extrapolate: Extrapolate.CLAMP
     });
+
+
     return (
         <SafeAreaView>
             <View style={styles.container}>
@@ -380,25 +312,8 @@ const HomeScreen = (props) => {
                                 style={{ paddingHorizontal: 10 }} />
                         </TouchableNativeFeedback>
                         <TouchableNativeFeedback onPress={() => {
-                            Navigation.showModal({
-                                stack: {
-                                    children: [
-                                        {
-                                            component: {
-                                                name: POSITION,
-                                                options: {
-                                                    screenBackgroundColor: 'transparent',
-                                                    modalPresentationStyle: 'overCurrentContext',
-                                                    topBar: {
-                                                        visible: false,
-                                                        animate: true,
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                            })
+                            _removeData();
+                            RNRestart.Restart();
                         }}>
                             <Icon
                                 name='sign-out'
@@ -409,7 +324,7 @@ const HomeScreen = (props) => {
                     </View>
                 </View>
             </View>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 };
 

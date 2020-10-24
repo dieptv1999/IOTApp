@@ -13,7 +13,6 @@ function* loginHandler(action) {
             "password": action.password,
         };
         const resp = yield call((params) => rf.getRequest('LoginRequest').login(params), params);
-        console.log(resp)
         if (resp) {
             yield put(loginSuccessAction(resp.token, action.callback));
         } else {
