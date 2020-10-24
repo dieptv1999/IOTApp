@@ -16,12 +16,15 @@ import allReducers from './src/reducers/index';
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from './src/sagas/rootSaga';
 
-import { CONTROL, HOME, POSITION } from './src/containers/index'
+import { CONTROL, HOME, LIGHTCONTROL, LOGIN, POSITION } from './src/containers/index'
 import { Navigation } from 'react-native-navigation';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import HomeContainer from './src/containers/HomeContainer';
 import ControlContainer from './src/containers/ControlContainer';
 import PositionModal from './src/components/widgets/PositionModal';
+import LightOverlay from './src/components/widgets/LightOverlay';
+import SelectModal from './src/components/widgets/SelectModal';
+import LoginContainer from './src/containers/LoginContainer';
 
 
 declare const global: { HermesInternal: null | {} };
@@ -40,6 +43,7 @@ const Screens = new Map<string, React.FC<any>>();
 
 Screens.set(HOME, HomeContainer);
 Screens.set(CONTROL, ControlContainer);
+Screens.set(LOGIN, LoginContainer);
 // Register screens
 Screens.forEach((C, key) => {
   Navigation.registerComponent(
@@ -50,7 +54,8 @@ Screens.forEach((C, key) => {
 });
 
 Navigation.registerComponent(POSITION, () => PositionModal);
-
+Navigation.registerComponent(LIGHTCONTROL, () => LightOverlay);
+Navigation.registerComponent('PICKER', () => SelectModal);
 
 export const startApp = () => {
   Navigation.setRoot({
@@ -59,7 +64,7 @@ export const startApp = () => {
         children: [
           {
             component: {
-              name: HOME,
+              name: LOGIN,
               options: {
                 topBar: {
                   visible: false,
@@ -68,8 +73,14 @@ export const startApp = () => {
                   visible: true,
                   style: 'dark',
                   backgroundColor: 'white'
-                }
+                },
               },
+              // passProps: {
+              //   items: [1999, 2000, 2001, 2002],
+              //   onCancel: () => { },
+              //   title: 'abc',
+              //   onSave: (val: any) => { },
+              // }
             },
           },
         ],

@@ -1,47 +1,178 @@
-import ViewPager from '@react-native-community/viewpager';
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, Dimensions, TouchableNativeFeedback } from 'react-native';
+import React, { Component, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, Dimensions, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import LinearGradient from 'react-native-linear-gradient';
 import { Navigation } from 'react-native-navigation';
 import Icon from 'react-native-vector-icons/Octicons';
 import { CONTROL, POSITION } from '../containers';
-import InfoItem from './widgets/InfoItem';
+import Animated, { Easing, Extrapolate } from 'react-native-reanimated';
+
+const {
+    Clock,
+    Value,
+    set,
+    cond,
+    startClock,
+    clockRunning,
+    timing,
+    debug,
+    stopClock,
+    block,
+    interpolate,
+    useCode,
+} = Animated;
 
 
-interface IProps {
-    componentId: any,
+// interface IProps {
+//     componentId: any,
+// }
+
+// interface IStates {
+//     markers: any,
+//     region: any
+// }
+// export default class HomeScreen extends Component<IProps, IStates>{
+//     animation: any
+//     index: number
+//     regionTimeout: any
+//     map: any
+//     constructor(props: any) {
+//         super(props)
+//         this.animation = new Animated.Value(0);
+//         this.index = 0;
+//         this.regionTimeout
+//         this.runTiming = this.runTiming.bind(this)
+//         this.state = {
+//             markers: [{ image: "abc", isAlerte: true }, { image: "abc", isAlerte: false }, { image: "abc" }, { image: "abc" }, { image: "abc" }],
+//             region: {}
+//         }
+//     }
+
+//     componentDidMount() {
+//         this.animation.addListener(({ value }) => {
+//             console.log(value)
+//             let index = Math.floor(value / 94 + 0.3); // animate 30% away from landing on the next item
+//             if (index >= this.state.markers.length) {
+//                 index = this.state.markers.length - 1;
+//             }
+//             if (index <= 0) {
+//                 index = 0;
+//             }
+
+//             clearTimeout(this.regionTimeout);
+//             this.regionTimeout = setTimeout(() => {
+//                 if (this.index !== index) {
+//                     this.index = index;
+//                     const { coordinates } = this.state.markers[index];
+//                     console.log(index)
+//                     // this.map.animateToRegion(
+//                     //     {
+//                     //         ...coordinates,
+//                     //         latitudeDelta: this.state.region.latitudeDelta,
+//                     //         longitudeDelta: this.state.region.longitudeDelta,
+//                     //     },
+//                     //     350
+//                     // );
+//                 }
+//             }, 10);
+//         });
+//     }
+
+
+
+
+//     render() {
+//         const { onPress, children } = this.props;
+//         const [pressed, setPressed] = useState(false);
+//         const { clock, scale } = useMemo(() => ({
+//             clock: new Clock(),
+//             scale: new Value(1),
+//         }), [])
+
+//         useCode(
+//             () => block([
+//                 pressed ? set(scale, this.runTiming(clock, 0, 1)) : set(scale, this.runTiming(clock, 1, 0))
+//             ]), [pressed]
+//         );
+//         const scaling = interpolate(scale, {
+//             inputRange: [1, 1],
+//             outputRange: [1.1, 1.1],
+//             extrapolate: Extrapolate.CLAMP
+//         });
+//         return (
+
+//         );
+//     }
+// }
+function runTiming(clock, from, to) {
+    const state = {
+        finished: new Value(0),
+        position: new Value(from),
+        time: new Value(0),
+        frameTime: new Value(0),
+    };
+
+    const config = {
+        duration: 100,
+        toValue: new Value(to),
+        easing: Easing.inOut(Easing.ease),
+    };
+
+    return block([
+        cond(
+            clockRunning(clock),
+            [],
+            startClock(clock),
+        ),
+        // we run the step here that is going to update position
+        timing(clock, state, config),
+        // if the animation is over we stop the clock
+        cond(state.finished, debug('stop clock', stopClock(clock))),
+        // we made the block return the updated position
+        state.position,
+    ]);
 }
 
-interface IStates {
-}
-export default class HomeScreen extends Component<IProps, IStates>{
-    constructor(props: any) {
-        super(props)
-    }
+const HomeScreen = (props) => {
+    const { onPress, children } = props;
+    const [pressed, setPressed] = useState(false);
+    const { clock, scale } = useMemo(() => ({
+        clock: new Clock(),
+        scale: new Value(1),
+    }), [])
 
-    render() {
-        return (
-            <SafeAreaView>
-                <View style={styles.container}>
-                    <View style={styles.title}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Theo dõi thông số</Text>
-                    </View>
-                    <View style={styles.info}>
-                        {/* <Icon
-                            name='cloud'
-                            size={70}
-                        /> */}
-                        <Image source={require('../../assets/sun.png')} style={{ height: 80, width: 80 }} resizeMode='contain' />
-                        <Text style={{ fontSize: 50, fontWeight: 'bold' }}>31.9</Text>
-                        <Text style={{ color: 'rgba(0,0,0,0.3)' }}>Đống đa, Hà Nội</Text>
-                    </View>
-                    <ScrollView
-                        showsHorizontalScrollIndicator={false}
-                        horizontal={true}
-                        style={{ marginHorizontal: 20 }} >
-                        {/* one */}
-                        <View style={[styles.card, { backgroundColor: '#F88A55' }]}>
+    useCode(
+        () => block([
+            pressed ? set(scale, runTiming(clock, 0, 1)) : set(scale, runTiming(clock, 1, 0))
+        ]), [pressed]
+    );
+
+    const scaling = interpolate(scale, {
+        inputRange: [0, 1],
+        outputRange: [1, 0.90],
+        extrapolate: Extrapolate.CLAMP
+    });
+    return (
+        <SafeAreaView>
+            <View style={styles.container}>
+                <View style={styles.title}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Theo dõi thông số</Text>
+                </View>
+                <View style={styles.info}>
+                    {/* <Icon
+                    name='cloud'
+                    size={70}
+                /> */}
+                    <Image source={require('../../assets/sun.png')} style={{ height: 80, width: 80 }} resizeMode='contain' />
+                    <Text style={{ fontSize: 50, fontWeight: 'bold' }}>31.9</Text>
+                    <Text style={{ color: 'rgba(0,0,0,0.3)' }}>Đống đa, Hà Nội</Text>
+                </View>
+                <ScrollView
+                    showsHorizontalScrollIndicator={false}
+                    horizontal={true}
+                    style={{ marginHorizontal: 20 }} >
+                    {/* one */}
+                    <TouchableWithoutFeedback onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)}>
+                        <Animated.View style={[styles.card, { backgroundColor: '#F88A55', transform: [{ scaleX: scaling }, { scaleY: scaling }] }]}>
                             <View style={{
                                 flexDirection: 'column',
                                 alignItems: 'center',
@@ -62,198 +193,225 @@ export default class HomeScreen extends Component<IProps, IStates>{
                             }}>
 
                             </View>
+                        </Animated.View>
+                    </TouchableWithoutFeedback>
+                    {/* two */}
+                    <View style={[styles.card, { backgroundColor: '#B56290' }]}>
+                        <View style={{
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'space-evenly',
+                            width: '100%',
+                            height: '100%',
+                        }}>
+
                         </View>
-                        {/* two */}
-                        <View style={[styles.card, { backgroundColor: '#B56290' }]}>
-                            <View style={{
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-evenly',
-                                width: '100%',
-                                height: '100%',
-                            }}>
+                        <View style={{
+                            backgroundColor: '#7B5D8F',
+                            height: '50%',
+                            width: '100%',
+                            marginLeft: -94,
+                            borderBottomStartRadius: 15,
+                            borderBottomEndRadius: 15,
+                        }}>
 
-                            </View>
-                            <View style={{
-                                backgroundColor: '#7B5D8F',
-                                height: '50%',
-                                width: '100%',
-                                marginLeft: -94,
-                                borderBottomStartRadius: 15,
-                                borderBottomEndRadius: 15,
-                            }}>
-
-                            </View>
                         </View>
-                        {/* three */}
-                        <View style={[styles.card, { backgroundColor: '#2E4857', alignItems: 'flex-start' }]}>
-                            <View style={{
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-evenly',
-                                width: '100%',
-                                height: '100%',
-                            }}>
-
-                            </View>
-                            <View style={{
-                                backgroundColor: '#475579',
-                                height: '50%',
-                                width: '100%',
-                                marginLeft: -94,
-                                borderTopStartRadius: 15,
-                                borderTopEndRadius: 15,
-                            }}>
-
-                            </View>
-                        </View>
-                        {/* four */}
-                        <View style={[styles.card, { backgroundColor: '#2E4857', alignItems: 'flex-start' }]}>
-                            <View style={{
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-evenly',
-                                width: '100%',
-                                height: '100%',
-                            }}>
-
-                            </View>
-                            <View style={{
-                                backgroundColor: '#475579',
-                                height: '50%',
-                                width: '100%',
-                                marginLeft: -94,
-                                borderBottomRightRadius: 50,
-                                borderTopStartRadius: 15,
-                                borderTopEndRadius: 15,
-                            }}>
-
-                            </View>
-                        </View>
-                    </ScrollView>
-                    <Text style={{ fontSize: 22, fontWeight: 'bold' }}>Nhiệt độ</Text>
-                    <View style={{ marginBottom: 80 }}>
-                        <LineChart
-                            data={{
-                                labels: ["03:10", "03:12", "03:14", "03:16", "03:18", "03:20"],
-                                datasets: [
-                                    {
-                                        data: [
-                                            32,
-                                            32,
-                                            32.3,
-                                            32.1,
-                                            32,
-                                            32.5,
-                                        ],
-                                    }
-                                ]
-                            }}
-                            width={Dimensions.get("window").width} // from react-native
-                            height={220}
-                            // yAxisLabel="$"
-                            // yAxisSuffix="k"
-                            renderDotContent={({ x, y, index }) => {
-                                return (
-                                    <Text style={{ position: 'absolute', top: y - 20, left: x - 8, fontSize: 10 }}>32.1</Text>
-
-                                );
-                            }}
-                            withInnerLines={false}
-                            withOuterLines={false}
-                            horizontalLabelRotation={-30}
-                            withHorizontalLabels={false}
-                            chartConfig={{
-                                backgroundColor: "white",
-                                backgroundGradientFrom: "white",
-                                backgroundGradientTo: "white",
-                                decimalPlaces: 2, // optional, defaults to 2dp
-                                color: (opacity = 0.3) => `rgba(0, 0, 0, ${opacity})`,
-                                labelColor: (opacity = 0.3) => `rgba(0, 0, 0, ${opacity})`,
-                                barPercentage: 0.1,
-                                style: {
-                                    borderRadius: 16,
-                                },
-                                propsForDots: {
-                                    r: "6",
-                                    strokeWidth: "2",
-                                    stroke: "#ffa726",
-
-                                }
-                            }}
-                            bezier
-                            style={{
-                                marginVertical: 8,
-                                borderRadius: 16
-                            }}
-                        />
                     </View>
-                    <View style={styles.bottomBar}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 5, height: '100%', marginLeft: 15 }}>
-                            <Icon
-                                name='home'
-                                size={26}
-                                color='rgba(0,0,0,0.5)'
-                                style={{ padding: 6 }} />
-                            <Text style={{ fontSize: 15, color: 'rgba(0,0,0,0.5)', fontWeight: 'bold' }}>Home</Text>
+                    {/* three */}
+                    <View style={[styles.card, { backgroundColor: '#2E4857', alignItems: 'flex-start' }]}>
+                        <View style={{
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'space-evenly',
+                            width: '100%',
+                            height: '100%',
+                        }}>
+
                         </View>
-                        <View style={{ height: '100%', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 15, padding: 5 }}>
-                            <TouchableNativeFeedback onPress={() => {
-                                Navigation.showModal({
-                                    stack: {
-                                        children: [
-                                            {
-                                                component: {
-                                                    name: POSITION,
-                                                    options: {
-                                                        screenBackgroundColor: 'transparent',
-                                                        modalPresentationStyle: 'overCurrentContext',
-                                                        topBar: {
-                                                            visible: false,
-                                                            animate: true,
-                                                        },
+                        <View style={{
+                            backgroundColor: '#475579',
+                            height: '50%',
+                            width: '100%',
+                            marginLeft: -94,
+                            borderTopStartRadius: 15,
+                            borderTopEndRadius: 15,
+                        }}>
+
+                        </View>
+                    </View>
+                    {/* four */}
+                    <View style={[styles.card, { backgroundColor: '#2E4857', alignItems: 'flex-start' }]}>
+                        <View style={{
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'space-evenly',
+                            width: '100%',
+                            height: '100%',
+                        }}>
+
+                        </View>
+                        <View style={{
+                            backgroundColor: '#475579',
+                            height: '50%',
+                            width: '100%',
+                            marginLeft: -94,
+                            borderBottomRightRadius: 50,
+                            borderTopStartRadius: 15,
+                            borderTopEndRadius: 15,
+                        }}>
+
+                        </View>
+                    </View>
+                </ScrollView>
+                <Text style={{ fontSize: 22, fontWeight: 'bold' }}>Nhiệt độ</Text>
+                <View style={{ marginBottom: 80 }}>
+                    <LineChart
+                        data={{
+                            labels: ["03:10", "03:12", "03:14", "03:16", "03:18", "03:20"],
+                            datasets: [
+                                {
+                                    data: [
+                                        32,
+                                        32,
+                                        32.3,
+                                        32.1,
+                                        32,
+                                        32.5,
+                                    ],
+                                }
+                            ]
+                        }}
+                        width={Dimensions.get("window").width} // from react-native
+                        height={220}
+                        // yAxisLabel="$"
+                        // yAxisSuffix="k"
+                        renderDotContent={({ x, y, index }) => {
+                            return (
+                                <Text style={{ position: 'absolute', top: y - 20, left: x - 8, fontSize: 10 }}>32.1</Text>
+
+                            );
+                        }}
+                        withInnerLines={false}
+                        withOuterLines={false}
+                        horizontalLabelRotation={-30}
+                        withHorizontalLabels={false}
+                        chartConfig={{
+                            backgroundColor: "white",
+                            backgroundGradientFrom: "white",
+                            backgroundGradientTo: "white",
+                            decimalPlaces: 2, // optional, defaults to 2dp
+                            color: (opacity = 0.3) => `rgba(0, 0, 0, ${opacity})`,
+                            labelColor: (opacity = 0.3) => `rgba(0, 0, 0, ${opacity})`,
+                            barPercentage: 0.1,
+                            style: {
+                                borderRadius: 16,
+                            },
+                            propsForDots: {
+                                r: "6",
+                                strokeWidth: "2",
+                                stroke: "#ffa726",
+
+                            }
+                        }}
+                        bezier
+                        style={{
+                            marginVertical: 8,
+                            borderRadius: 16
+                        }}
+                    />
+                </View>
+                <View style={styles.bottomBar}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 5, height: '100%', marginLeft: 15 }}>
+                        <Icon
+                            name='home'
+                            size={26}
+                            color='rgba(0,0,0,0.5)'
+                            style={{ padding: 6 }} />
+                        <Text style={{ fontSize: 15, color: 'rgba(0,0,0,0.5)', fontWeight: 'bold' }}>Home</Text>
+                    </View>
+                    <View style={{ height: '100%', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginRight: 15, padding: 5 }}>
+                        <TouchableNativeFeedback onPress={() => {
+                            Navigation.showModal({
+                                stack: {
+                                    children: [
+                                        {
+                                            component: {
+                                                name: POSITION,
+                                                options: {
+                                                    screenBackgroundColor: 'transparent',
+                                                    modalPresentationStyle: 'overCurrentContext',
+                                                    topBar: {
+                                                        visible: false,
+                                                        animate: true,
                                                     },
                                                 },
                                             },
-                                        ],
-                                    },
-                                })
-                            }}>
-                                <Icon
-                                    name='location'
-                                    size={26}
-                                    color='rgba(0,0,0,0.5)'
-                                    style={{ paddingHorizontal: 10 }} />
-                            </TouchableNativeFeedback>
-                            <TouchableNativeFeedback onPress={() => {
-                                Navigation.push(this.props.componentId, {
-                                    component: {
-                                        name: CONTROL,
-                                        options: {
-                                            topBar: {
-                                                visible: false,
-                                            },
-                                            statusBar: {
-                                                backgroundColor: '#397fff',
-                                                style: 'dark',
-                                            }
+                                        },
+                                    ],
+                                },
+                            })
+                        }}>
+                            <Icon
+                                name='location'
+                                size={26}
+                                color='rgba(0,0,0,0.5)'
+                                style={{ paddingHorizontal: 10 }} />
+                        </TouchableNativeFeedback>
+                        <TouchableNativeFeedback onPress={() => {
+                            Navigation.push(props.componentId, {
+                                component: {
+                                    name: CONTROL,
+                                    options: {
+                                        topBar: {
+                                            visible: false,
+                                        },
+                                        statusBar: {
+                                            backgroundColor: '#397fff',
+                                            style: 'dark',
                                         }
                                     }
-                                })
-                            }}>
-                                <Icon
-                                    name='dashboard'
-                                    size={26}
-                                    color='rgba(0,0,0,0.5)'
-                                    style={{ paddingHorizontal: 10 }} />
-                            </TouchableNativeFeedback>
-                        </View>
+                                }
+                            })
+                        }}>
+                            <Icon
+                                name='dashboard'
+                                size={26}
+                                color='rgba(0,0,0,0.5)'
+                                style={{ paddingHorizontal: 10 }} />
+                        </TouchableNativeFeedback>
+                        <TouchableNativeFeedback onPress={() => {
+                            Navigation.showModal({
+                                stack: {
+                                    children: [
+                                        {
+                                            component: {
+                                                name: POSITION,
+                                                options: {
+                                                    screenBackgroundColor: 'transparent',
+                                                    modalPresentationStyle: 'overCurrentContext',
+                                                    topBar: {
+                                                        visible: false,
+                                                        animate: true,
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            })
+                        }}>
+                            <Icon
+                                name='sign-out'
+                                size={26}
+                                color='rgba(0,0,0,0.5)'
+                                style={{ paddingHorizontal: 10 }} />
+                        </TouchableNativeFeedback>
                     </View>
                 </View>
-            </SafeAreaView>
-        );
-    }
-}
+            </View>
+        </SafeAreaView>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -298,3 +456,5 @@ const styles = StyleSheet.create({
         marginTop: 80,
     }
 })
+
+export { HomeScreen };

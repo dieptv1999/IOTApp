@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { uploadFile } from '../actions';
-import HomeScreen from '../components/HomeScreen';
+import { HomeScreen } from '../components/HomeScreen';
 
 const mapStateToProps = (state: any) => {
     return {

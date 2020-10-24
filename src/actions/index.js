@@ -1,10 +1,23 @@
-import { GET_MORE_DATA, LOGIN, LOGIN_FAIL, REFRESH_DATA, UPLOAD_FILE } from './actionTypes';
+import { GET_MORE_DATA, LOGIN, LOGIN_FAIL, LOGIN_SUCCESS, REFRESH_DATA, UPLOAD_FILE } from './actionTypes';
 
-export const loginAction = (username: string, password: string, callback) => {
+export const loginAction = (email: string, password: string, callback) => {
     return {
         type: LOGIN,
-        username: username,
+        email: email,
         password: password,
+        callback: callback,
+    }
+}
+export const loginSuccessAction = (token:string,callback) => {
+    return {
+        type: LOGIN_SUCCESS,
+        token,
+        callback: callback,
+    }
+}
+export const loginFailAction = (callback) => {
+    return {
+        type: LOGIN_FAIL,
         callback: callback,
     }
 }
@@ -20,17 +33,6 @@ export const getNextPageAction = (currPage: Number, callback) => {
     return {
         type: GET_MORE_DATA,
         currPage: currPage,
-        callback: callback,
-    }
-}
-
-export const uploadFile = (uri: string, typeFile: string, name: string, size: number, callback: any) => {
-    return {
-        type: UPLOAD_FILE,
-        uri,
-        typeFile,
-        name,
-        size,
         callback: callback,
     }
 }

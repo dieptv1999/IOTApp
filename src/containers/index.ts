@@ -5,3 +5,4 @@ export const USERMANAGEMENT = 'USERMANAGEMENT';
 export const CONVERSATION = 'CONVERSATION';
 export const CONTROL = 'CONTROL';
 export const POSITION = 'POSITION';
+export const LIGHTCONTROL = 'LIGHTCONTROL';
