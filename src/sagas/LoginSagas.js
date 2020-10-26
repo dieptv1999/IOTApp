@@ -4,17 +4,20 @@ import { LOGIN, LOGIN_FAIL, LOGIN_SUCCESS } from '../actions/actionTypes';
 import { call, put, takeEvery } from 'redux-saga/effects';
 import loginActions, { loginFailAction, loginSuccessAction } from '../actions/index'
 import rf from '../requests/RequestFactory';
+import { sha256 } from 'react-native-sha256';
 
 
 function* loginHandler(action) {
+    const hash = yield sha256(action.email + action.password)
     try {
         const params = {
             "email": action.email,
-            "password": action.password,
+            "password": hash,
         };
+        console.log(params)
         const resp = yield call((params) => rf.getRequest('LoginRequest').login(params), params);
         if (resp) {
-            yield put(loginSuccessAction(resp.token, action.callback));
+            yield put(loginSuccessAction(resp.idToken, action.callback));
         } else {
             yield put(loginFailAction(action.callback));
         }
