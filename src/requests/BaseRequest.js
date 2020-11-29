@@ -2,7 +2,7 @@ import { get, first, isString } from 'lodash'
 // import AsyncStorage from '@react-native-community/async-storage'
 
 export default class BaseRequest {
-  version = `http://192.168.1.16:5000`;
+  version = `http://192.168.43.209:5000`;
 
   prefix() {
     return ''

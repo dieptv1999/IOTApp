@@ -1,6 +1,6 @@
 import { GET_MORE_DATA, LOGIN, LOGIN_FAIL, LOGIN_SUCCESS, REFRESH_DATA, UPLOAD_FILE } from './actionTypes';
 
-export const loginAction = (email: string, password: string, callback) => {
+export const loginAction = (email, password, callback) => {
     return {
         type: LOGIN,
         email: email,
@@ -8,7 +8,7 @@ export const loginAction = (email: string, password: string, callback) => {
         callback: callback,
     }
 }
-export const loginSuccessAction = (token:string,callback) => {
+export const loginSuccessAction = (token,callback) => {
     return {
         type: LOGIN_SUCCESS,
         token,

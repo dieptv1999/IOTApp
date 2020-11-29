@@ -3,15 +3,10 @@ import { StyleSheet, View, Text, Dimensions, ScrollView, Image, TouchableWithout
 import LinearGradient from 'react-native-linear-gradient';
 import { Navigation } from 'react-native-navigation';
 import { LIGHTCONTROL } from '../containers';
-import Icon from 'react-native-vector-icons/AntDesign';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 
-interface ICellProps {
-    device: string
-}
-interface ICellStates { }
-
-class CellContainer extends Component<ICellProps, ICellStates> {
+class CellContainer extends Component {
     constructor(args) {
         super(args);
         this._getContent = this._getContent.bind(this)
@@ -90,14 +85,8 @@ class CellContainer extends Component<ICellProps, ICellStates> {
     }
 }
 
-interface IProps {
-    componentId: string
-}
-interface IStates { }
-
-export default class ControlScreen extends Component<IProps, IStates>{
-    width: number
-    constructor(props: any) {
+export default class ControlScreen extends Component{
+    constructor(props) {
         super(props)
         this.width = Dimensions.get('window').width;
     }
@@ -115,7 +104,7 @@ export default class ControlScreen extends Component<IProps, IStates>{
                                     onPress={() => {
                                         Navigation.pop(this.props.componentId);
                                     }}
-                                    name='left'
+                                    name='chevron-left'
                                     size={26}
                                     color='white'
                                     style={{ paddingRight: 8 }} />

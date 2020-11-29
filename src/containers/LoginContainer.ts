@@ -5,8 +5,9 @@ import { loginAction } from '../actions';
 import Login from '../components/Login';
 
 const mapStateToProps = (state: any) => {
+    console.log(state)
     return {
-        loginData: state.loginReducers ? state.loginReducers : null,
+        loginData: state.loginReducers !=null && state.loginReducers.token ? state.loginReducers.token : null,
     }
 };
 

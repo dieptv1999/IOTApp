@@ -9,6 +9,7 @@ import { sha256 } from 'react-native-sha256';
 
 function* loginHandler(action) {
     const hash = yield sha256(action.email + action.password)
+    console.log(hash)
     try {
         const params = {
             "email": action.email,
@@ -17,7 +18,7 @@ function* loginHandler(action) {
         console.log(params)
         const resp = yield call((params) => rf.getRequest('LoginRequest').login(params), params);
         if (resp) {
-            yield put(loginSuccessAction(resp.idToken, action.callback));
+            yield put(loginSuccessAction(resp.data.token, action.callback));
         } else {
             yield put(loginFailAction(action.callback));
         }
