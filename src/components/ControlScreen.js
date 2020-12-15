@@ -7,12 +7,11 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 
 
 class CellContainer extends Component {
-    constructor(args) {
-        super(args);
-        this._getContent = this._getContent.bind(this)
+    constructor(props) {
+        super(props);
     }
 
-    _getContent() {
+    _getContent = () => {
         switch (this.props.device) {
             case 'LIGHT':
                 return (
@@ -40,6 +39,7 @@ class CellContainer extends Component {
     render() {
         return (
             <TouchableWithoutFeedback onPress={() => {
+                var self = this
                 Navigation.showModal({
                     stack: {
                         children: [
@@ -56,6 +56,22 @@ class CellContainer extends Component {
                                     },
                                     passProps: {
                                         device: this.props.device,
+                                        callback: (data) => {
+                                            switch (data.type) {
+                                                case 'LIGHT':
+                                                    self.props.setStateDevice({
+                                                        light: 32,
+                                                        pump: 40,
+                                                        fan: 36,
+                                                    }, (val) => {
+                                                        console.log('abcdshs', val);
+                                                    })
+                                                    break;
+
+                                                default:
+                                                    break;
+                                            }
+                                        }
                                     }
                                 },
                             },
@@ -85,7 +101,7 @@ class CellContainer extends Component {
     }
 }
 
-export default class ControlScreen extends Component{
+export default class ControlScreen extends Component {
     constructor(props) {
         super(props)
         this.width = Dimensions.get('window').width;
@@ -116,11 +132,11 @@ export default class ControlScreen extends Component{
                         <View style={{ height: 130, width: '100%', zIndex: 1, elevation: 1 }}>
                             <ScrollView style={{ height: 130, width: '100%' }} showsHorizontalScrollIndicator={false} horizontal={true}>
                                 {/* one */}
-                                <CellContainer device='LIGHT' />
+                                <CellContainer device='LIGHT' setStateDevice={this.props.setStateDevice} />
                                 {/* two */}
-                                <CellContainer device='PUMP' />
+                                <CellContainer device='PUMP' setStateDevice={this.props.setStateDevice} />
                                 {/* three */}
-                                <CellContainer device='FAN' />
+                                <CellContainer device='FAN' setStateDevice={this.props.setStateDevice} />
                                 {/* four */}
                                 <View style={{
                                     height: 100, width: 100,

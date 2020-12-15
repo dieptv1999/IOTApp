@@ -22,24 +22,22 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import HomeContainer from './src/containers/HomeContainer';
 import ControlContainer from './src/containers/ControlContainer';
 import PositionModal from './src/components/widgets/PositionModal';
-import LightOverlay from './src/components/widgets/LightOverlay';
+import ControlModal from './src/components/widgets/ControlModal';
 import SelectModal from './src/components/widgets/SelectModal';
 import LoginContainer from './src/containers/LoginContainer';
 
 
-declare const global: { HermesInternal: null | {} };
-//Middleware
 const sagaMiddleware = createSagaMiddleware();
 let store = createStore(allReducers, {}, composeWithDevTools(applyMiddleware(sagaMiddleware)));
 sagaMiddleware.run(rootSaga);
 
-export const withReduxProvider = (C: React.FC) => (props: any) => (
+export const withReduxProvider = (C) => (props) => (
   <Provider store={store}>
     <C {...props} />
   </Provider>
 );
 
-const Screens = new Map<string, React.FC<any>>();
+const Screens = new Map();
 
 Screens.set(HOME, HomeContainer);
 Screens.set(CONTROL, ControlContainer);
@@ -54,10 +52,12 @@ Screens.forEach((C, key) => {
 });
 
 Navigation.registerComponent(POSITION, () => PositionModal);
-Navigation.registerComponent(LIGHTCONTROL, () => LightOverlay);
+Navigation.registerComponent(LIGHTCONTROL, () => ControlModal);
 Navigation.registerComponent('PICKER', () => SelectModal);
 
 export const startApp = () => {
+  if (typeof process === 'undefined') process = {};
+  process.nextTick = setImmediate;
   Navigation.setRoot({
     root: {
       stack: {

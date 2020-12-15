@@ -4,17 +4,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import { Navigation } from 'react-native-navigation';
 import Icon from 'react-native-vector-icons/AntDesign';
 
-interface IProps {
-    componentId: string,
-    device: string
-}
-interface IStates { }
+export default class LightOverlay extends Component {
 
-export default class LightOverlay extends Component<IProps, IStates>{
-
-    constructor(props: any) {
+    constructor(props) {
         super(props)
         this._getContent = this._getContent.bind(this)
+        this.state = {
+            isClick: false,
+        }
     }
 
     _getContent() {
@@ -58,10 +55,13 @@ export default class LightOverlay extends Component<IProps, IStates>{
                         {this._getContent()}
                     </View>
                     <TouchableNativeFeedback onPress={() => {
-                        console.log("clcik")
+                        this.setState({
+                            isClick: !this.state.isClick,
+                        })
+                        this.props.callback({ type: this.props.device, value: this.state.isClick })
                     }}
                         background={TouchableNativeFeedback.Ripple('rgba(0,0,0,0.1)', true)} >
-                        <LinearGradient colors={['#471dfe', '#4447ff', '#397fff']} start={{ x: 0, y: 1 }}
+                        <LinearGradient colors={this.state.isClick ? ['#471dfe', '#4447ff', '#397fff'] : ['gray', 'gray', 'gray']} start={{ x: 0, y: 1 }}
                             end={{ x: 0, y: 0 }} style={[styles.power]}>
                             <View style={{
                                 height: 114, width: 114, borderRadius: 57,
@@ -70,7 +70,7 @@ export default class LightOverlay extends Component<IProps, IStates>{
                                 <Icon
                                     name='poweroff'
                                     size={36}
-                                    color='#471dfe' />
+                                    color={this.state.isClick ? '#471dfe' : 'gray'} />
                             </View>
                         </LinearGradient>
                     </TouchableNativeFeedback>

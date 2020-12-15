@@ -1,4 +1,4 @@
-import { GET_MORE_DATA, LOGIN, LOGIN_FAIL, LOGIN_SUCCESS, REFRESH_DATA, UPLOAD_FILE } from './actionTypes';
+import { GET_MORE_DATA, LOGIN, LOGIN_FAIL, LOGIN_SUCCESS, REFRESH_DATA, SET_STATE_DEVICE, UPLOAD_FILE } from './actionTypes';
 
 export const loginAction = (email, password, callback) => {
     return {
@@ -29,10 +29,18 @@ export const refreshDataAction = (callback) => {
     }
 }
 
-export const getNextPageAction = (currPage: Number, callback) => {
+export const getNextPageAction = (currPage, callback) => {
     return {
         type: GET_MORE_DATA,
         currPage: currPage,
         callback: callback,
+    }
+}
+
+export const changeStateDevice = (json, callback)=>{
+    return {
+        type: SET_STATE_DEVICE,
+        json, 
+        callback
     }
 }

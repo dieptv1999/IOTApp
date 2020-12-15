@@ -39,7 +39,7 @@ export default class HomeScreen extends Component {
             only: 0
         })
         if (this.state.only == 1) {
-            this.socket = io("http://192.168.43.209:5000");
+            this.socket = io("http://192.168.1.8:5000");
             // console.log(socket.id)
             this.socket.emit('topic', { message: 'Farm', token: this.props.accessToken });
             this.socket.on("Farmdata", msg => {

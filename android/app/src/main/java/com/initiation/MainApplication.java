@@ -26,7 +26,6 @@ public class MainApplication extends NavigationApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          // packages.add(new MyReactNativePackage());
           return packages;
         }
 
@@ -51,12 +50,11 @@ public class MainApplication extends NavigationApplication {
   /**
    * Loads Flipper in React Native templates. Call this in the onCreate method with something like
    * initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-   *
-   * @param context
+   *  @param context
    * @param reactInstanceManager
    */
   private static void initializeFlipper(
-      Context context, ReactInstanceManager reactInstanceManager) {
+          MainApplication context, ReactInstanceManager reactInstanceManager) {
     if (BuildConfig.DEBUG) {
       try {
         /*
